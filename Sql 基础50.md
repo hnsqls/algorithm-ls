@@ -44,3 +44,48 @@ from Patients
 where conditions like 'DIAB1%' or  conditions like '% DIAB1%'
 ```
 
+
+
+[196. 删除重复的电子邮箱 - 力扣（LeetCode）](https://leetcode.cn/problems/delete-duplicate-emails/?envType=study-plan-v2&envId=sql-free-50)
+
+问题：删除重复的字符串，只保留最小id的字符串
+
+思路：
+
+* 注意是删除，而不是选择
+
+* 不重复的，不用修改,重复的删除，仅仅保留最小id的元素
+* 那直接通过email分组，同时获去最小id。
+* 使用not in  删除不是最小id的元素
+
+错误示范 ： **MySQL 不允许在 `DELETE` 或 `UPDATE` 语句的子查询中直接引用目标表**。为了解决这个问题，我们需要将子查询的结果包装在一个临时表中。
+
+```sql
+delete from Person
+where id not in
+(
+    select min(id) as id
+    from Person
+    group by email
+)
+
+```
+
+正确：当作临时表，获取数据元素
+
+```sql
+delete from Person
+where id not in
+(
+    select t.id
+    from 
+         (
+          select min(id) as id
+            from Person
+             group by email
+         ) as t 
+)
+```
+
+
+
