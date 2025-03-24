@@ -89,3 +89,29 @@ where id not in
 
 
 
+[176. 第二高的薪水 - 力扣（LeetCode）](https://leetcode.cn/problems/second-highest-salary/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述：
+
+查找第二高的薪水，没有第二高就是null
+
+思路
+
+* 根据薪水分组+降序排序
+* limit +offset + ifnull
+
+```sql
+# Write your MySQL query statement below
+select 
+ifnull(
+    (
+      select salary
+      from Employee
+      group by salary
+      order by salary desc
+      limit 1 offset 1
+    )
+, null
+) as SecondHighestSalary
+```
+
