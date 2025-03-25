@@ -89,7 +89,7 @@ where id not in
 
 
 
-[176. 第二高的薪水 - 力扣（LeetCode）](https://leetcode.cn/problems/second-highest-salary/?envType=study-plan-v2&envId=sql-free-50)
+## [176. 第二高的薪水 - 力扣（LeetCode）](https://leetcode.cn/problems/second-highest-salary/?envType=study-plan-v2&envId=sql-free-50)
 
 题目描述：
 
@@ -113,5 +113,71 @@ ifnull(
     )
 , null
 ) as SecondHighestSalary
+```
+
+## [1484. 按日期分组销售产品 - 力扣（LeetCode）](https://leetcode.cn/problems/group-sold-products-by-the-date/description/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述：
+
+查找出相同日期下，卖货的数量，以及数量名称的集合（按字典序排序），总体按日期排序，没有主键。
+
+思路
+
+* 根据日期分组排序，查出当天的，卖货数量（注意去重）。
+* 商品名称集合要拼接，排序拼接,->想到了局部排序-但是最总还是要拼接
+
+最终思路
+
+* 根据日期分组排序，对产品去重，获得每组的数据，然后通过group_concat 对分组后不同行的字段进行拼接
+
+
+
+tips: 函数 row_number() over (partition by coumle1 order by coumle2 desc) 局部排序给局部1，2，3排序
+
+学习了更好的解法： 
+
+将多行数据合并为一个字符串。
+
+```sql
+GROUP_CONCAT(
+    [DISTINCT] 列名 
+    [ORDER BY 排序字段 [ASC|DESC]]
+    [SEPARATOR '分隔符']
+)
+```
+
+```sql
+select sell_date ,
+count(distinct product) as num_sold ,
+group_concat(distinct product order by product asc separator ',') as products
+from Activities
+group by sell_date
+
+```
+
+
+
+## [1327. 列出指定时间段内所有的下单产品 - 力扣（LeetCode）](https://leetcode.cn/problems/list-the-products-ordered-in-a-period/description/?envType=study-plan-v2&envId=sql-free-50)
+
+题目表述：
+
+一个商品表，一个订单表，找出指定时间前，卖出商品超过100 的商品名称和商品数量
+
+思路
+
+* 连表，过滤出指定时间前的数据
+* 根据商品id 分组计算出售商品数量
+* 子查询过滤出商品超100的数量 ---》优化，直接having
+
+```sql
+# Write your MySQL query statement below
+select product_name,
+sum(unit) as unit
+from Products p
+join Orders o
+on p.product_id = o.product_id
+where order_date <= '2020-02-29' and order_date >= '2020-02-01'
+group by p.product_id
+having unit >=100
 ```
 
