@@ -2,6 +2,88 @@
 
 [高频 SQL 50 题（基础版） - 学习计划 - 力扣（LeetCode）全球极客挚爱的技术成长平台](https://leetcode.cn/studyplan/sql-free-50/)
 
+
+
+# 子查询
+
+## [602. 好友申请 II ：谁有最多的好友 - 力扣（LeetCode）](https://leetcode.cn/problems/friend-requests-ii-who-has-the-most-friends/description/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述
+
+一个申请好友表，找出最多好友的人，以及人数。每个申请唯一
+
+用户申请加好友------用户通过申请好友
+
+思路      
+
+* 好友的人数 = 自己主动加别人 + 别人加自己
+* 自己主动加别人  根据请求用户id分组 计算 人数
+* 别人主动加自己  根据审核用户id分组 计算 人数
+* 获取用户id 对应的总好友数排序。 支取排序号的第一行
+
+
+
+错误sql 如下
+
+```sql
+# Write your MySQL query statement bel
+
+select req.requester_id as id, coalesce(request_num,0) + coalesce(acc_num,0) as num
+-- select *
+from (
+    select *,count(*) as request_num
+from RequestAccepted
+group by requester_id
+) as req
+left join (
+    select *,count(*) as acc_num
+from RequestAccepted
+group by accepter_id
+) 
+as acc
+on req.requester_id = acc.accepter_id
+order by  coalesce(request_num,0) + coalesce(acc_num,0) desc
+limit 1
+```
+
+原因： 连接时候由于id =3 的用户没有加别人导致在主动加人的表中没有该id,链表的时候就丢弃了。没有直接支持保留两个表的数据及时没有匹配行
+
+![image-20250326112154013](images/Sql 基础50.assets/image-20250326112154013.png)
+
+
+
+优化思路：
+
+* 关系是双向的，我们可以收集所有参与关系的用户id，也就是作为请求者的用户id, 和作为接收者的用户id, 不去重，每出现一次就是一个关系，也就是好友个人。
+
+```sql
+SELECT id, COUNT(*) AS num
+FROM (
+    SELECT requester_id AS id FROM RequestAccepted
+    UNION ALL
+    SELECT accepter_id AS id FROM RequestAccepted
+) AS t
+GROUP BY id
+ORDER BY num DESC
+LIMIT 1;
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 高级字符串函数 
 
 ## [1667. 修复表中的名字 - 力扣（LeetCode）](https://leetcode.cn/problems/fix-names-in-a-table/description/?envType=study-plan-v2&envId=sql-free-50)
