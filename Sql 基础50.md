@@ -181,3 +181,40 @@ group by p.product_id
 having unit >=100
 ```
 
+## [1517. 查找拥有有效邮箱的用户 - 力扣（LeetCode）](https://leetcode.cn/problems/find-users-with-valid-e-mails/description/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述：
+
+查找符合要求的邮箱，要求结尾以@leetcode.com，开头只能以字母开头。
+
+思路
+
+* 模糊匹配后端
+* 截取前缀判断是否在英文字母范围
+
+
+
+```sql
+select *
+from Users
+where mail like '%@leetcode.com' and (
+    substring(mail,1,1) between 'a' and 'z' or
+     substring(mail,1,1) between 'A' and 'Z'
+)
+```
+
+![image-20250326103423543](images/Sql 基础50.assets/image-20250326103423543.png)
+
+出错，没考虑其他字符。所以还是只用正则表达式
+
+优化思路 ：正则表达式
+
+```sql
+SELECT *
+FROM Users
+WHERE mail regexp '^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$'
+```
+
+正则的起始^ 结尾$
+
+[] 用户模糊匹配的字段
