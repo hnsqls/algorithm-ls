@@ -1,12 +1,107 @@
 # Sql 基础50道
 
-[高频 SQL 50 题（基础版） - 学习计划 - 力扣（LeetCode）全球极客挚爱的技术成长平台](https://leetcode.cn/studyplan/sql-free-50/)
+[高频 SQL 50 题（基础版） - 学习计划 全球极客挚爱的技术成长平台](https://leetcode.cn/studyplan/sql-free-50/)
+
+# 高级查询和连接
+
+## [1204. 最后一个能进入巴士的人 ](https://leetcode.cn/problems/last-person-to-fit-in-the-bus/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述：
+
+表记录乘客的id,weight,以及乘车顺序。找出最后一个上车但是不超载的人的信息
+
+思路
+
+* 根据顺序排序，每一行保留累加体重的值（如何累加行数据）（滑动窗口？ sum(weight) over (order by turn ) as total）
+* 过滤出小于1000的累加值，降序排序获得第一个值的名称
+
+```sql
+select person_name 
+from 
+(
+select *,
+sum(weight) over (order by turn) as total
+from Queue
+)  as t
+where t.total <= 1000
+order by t.total desc
+limit 1
+```
+
+
+
+
+
+## [1907. 按分类统计薪水 ](https://leetcode.cn/problems/count-salary-categories/description/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述
+
+​	表内容是银行账户，按照表数据的余额进行分组（低，中，高），统计每个分组类型账户的个数，没有就是0
+
+思路
+
+* 判断每行的数据在哪个位置分组的逻辑置为 1，2，3，然后分组统计1，2，3的个数。
+* 为null 的置为0
+
+一下有一个问题，就是第一次查询后，没有该level的逻辑数字，如下图
+
+```sql
+select 
+case 
+    when level = 1 then 'Low Salary'
+    when level = 2 then 'Average Salary'
+    when level = 3 then 'High Salary'
+    end as category,
+count(*) as accounts_count 
+from(
+    select *,
+    case 
+        when income < 20000 then  1
+        when income < 50000 then  2
+        else 3
+    end as level
+from Accounts
+) as t
+group by level
+```
+
+没有中间水平的账户，导致第一次查询，就没有该水平的逻辑表示，怎么办？--》不太会熟练使用unil all，
+
+![image-20250327095745189](images/Sql 基础50.assets/image-20250327095745189.png)
+
+
+
+优化思路
+
+* 分别统计低中高的数据
+* 使用union all 连接
+
+```sql
+SELECT 
+    'Low Salary' AS category,
+    SUM(CASE WHEN income < 20000 THEN 1 ELSE 0 END) AS accounts_count
+FROM Accounts
+
+UNION ALL
+
+SELECT 
+    'Average Salary' AS category,
+    SUM(CASE WHEN income BETWEEN 20000 AND 50000 THEN 1 ELSE 0 END) AS accounts_count
+FROM Accounts
+
+UNION ALL
+
+SELECT 
+    'High Salary' AS category,
+    SUM(CASE WHEN income > 50000 THEN 1 ELSE 0 END) AS accounts_count
+FROM Accounts;
+```
 
 
 
 # 子查询
 
-## [602. 好友申请 II ：谁有最多的好友 - 力扣（LeetCode）](https://leetcode.cn/problems/friend-requests-ii-who-has-the-most-friends/description/?envType=study-plan-v2&envId=sql-free-50)
+## [602. 好友申请 II ：谁有最多的好友 ](https://leetcode.cn/problems/friend-requests-ii-who-has-the-most-friends/description/?envType=study-plan-v2&envId=sql-free-50)
 
 题目描述
 
@@ -86,9 +181,9 @@ LIMIT 1;
 
 # 高级字符串函数 
 
-## [1667. 修复表中的名字 - 力扣（LeetCode）](https://leetcode.cn/problems/fix-names-in-a-table/description/?envType=study-plan-v2&envId=sql-free-50)
+## [1667. 修复表中的名字 ](https://leetcode.cn/problems/fix-names-in-a-table/description/?envType=study-plan-v2&envId=sql-free-50)
 
-## [1527. 患某种疾病的患者 - 力扣（LeetCode）](https://leetcode.cn/problems/patients-with-a-condition/description/?envType=study-plan-v2&envId=sql-free-50)
+## [1527. 患某种疾病的患者 ](https://leetcode.cn/problems/patients-with-a-condition/description/?envType=study-plan-v2&envId=sql-free-50)
 
 问题：查一个字符串列表，含有指定前缀的字符串。
 
@@ -128,7 +223,7 @@ where conditions like 'DIAB1%' or  conditions like '% DIAB1%'
 
 
 
-[196. 删除重复的电子邮箱 - 力扣（LeetCode）](https://leetcode.cn/problems/delete-duplicate-emails/?envType=study-plan-v2&envId=sql-free-50)
+[196. 删除重复的电子邮箱 ](https://leetcode.cn/problems/delete-duplicate-emails/?envType=study-plan-v2&envId=sql-free-50)
 
 问题：删除重复的字符串，只保留最小id的字符串
 
@@ -171,7 +266,7 @@ where id not in
 
 
 
-## [176. 第二高的薪水 - 力扣（LeetCode）](https://leetcode.cn/problems/second-highest-salary/?envType=study-plan-v2&envId=sql-free-50)
+## [176. 第二高的薪水 ](https://leetcode.cn/problems/second-highest-salary/?envType=study-plan-v2&envId=sql-free-50)
 
 题目描述：
 
@@ -197,7 +292,7 @@ ifnull(
 ) as SecondHighestSalary
 ```
 
-## [1484. 按日期分组销售产品 - 力扣（LeetCode）](https://leetcode.cn/problems/group-sold-products-by-the-date/description/?envType=study-plan-v2&envId=sql-free-50)
+## [1484. 按日期分组销售产品 ](https://leetcode.cn/problems/group-sold-products-by-the-date/description/?envType=study-plan-v2&envId=sql-free-50)
 
 题目描述：
 
@@ -239,7 +334,7 @@ group by sell_date
 
 
 
-## [1327. 列出指定时间段内所有的下单产品 - 力扣（LeetCode）](https://leetcode.cn/problems/list-the-products-ordered-in-a-period/description/?envType=study-plan-v2&envId=sql-free-50)
+## [1327. 列出指定时间段内所有的下单产品 ](https://leetcode.cn/problems/list-the-products-ordered-in-a-period/description/?envType=study-plan-v2&envId=sql-free-50)
 
 题目表述：
 
@@ -263,7 +358,7 @@ group by p.product_id
 having unit >=100
 ```
 
-## [1517. 查找拥有有效邮箱的用户 - 力扣（LeetCode）](https://leetcode.cn/problems/find-users-with-valid-e-mails/description/?envType=study-plan-v2&envId=sql-free-50)
+## [1517. 查找拥有有效邮箱的用户 ](https://leetcode.cn/problems/find-users-with-valid-e-mails/description/?envType=study-plan-v2&envId=sql-free-50)
 
 题目描述：
 
