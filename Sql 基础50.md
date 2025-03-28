@@ -246,9 +246,80 @@ where t.cnt >1 and t.location_count = 1
 
 
 
+## [185. 部门工资前三高的所有员工](https://leetcode.cn/problems/department-top-three-salaries/description/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述
+
+​	两个表，员工薪水表， 以及部门表，要求找出每个部门薪水的前三员工
+
+思路
+
+* 根据部门，局部分组排序（降序），获得前三的数据
+* 在连表获得部门的名称（输出的要求）
 
 
 
+第一步：根据部门局部分组并且根据薪水排序（降序），获得前三的数据
+
+```sql
+# Write your MySQL query statement below
+select *,
+row_number() over (partition by departmentId order by salary desc) as sn
+from Employee
+```
+
+![image-20250328105912042](images/Sql 基础50.assets/image-20250328105912042.png)
+
+第二步 获得每组前三的数据，连表整合数据
+
+```sql
+SELECT d.name AS department,e.name as Employee, e.salary
+FROM (
+    select *,
+row_number() over (partition by departmentId order by salary desc) as sn
+from Employee
+) as e
+JOIN Department d ON e.departmentId = d.id
+WHERE e.sn <= 3
+```
+
+![image-20250328113441003](images/Sql 基础50.assets/image-20250328113441003.png)
+
+错误的原因是，题目要求的不同工资的前三，也就是说前三，人不一定是三个，但是不同的薪资是三个，比如上如IT部门前三有4个人，原因是有相同薪资的员工。
+
+也就是我们的row_number() 排序有问题。 会导致相同的薪资有不同的排名，我们想要相同的薪资有i相同的排名，并且排名连续可以是用dense_rank()
+
+
+
+优化的sql,  使用With AS   同时 修复 DENSE_RANK() 
+
+```sql
+WITH RankedEmployees AS (
+    SELECT *,
+           DENSE_RANK() OVER (PARTITION BY departmentId ORDER BY salary DESC) AS salary_rank
+    FROM Employee
+)
+SELECT d.name AS department,e.name as Employee, e.salary
+FROM RankedEmployees e
+JOIN Department d ON e.departmentId = d.id
+WHERE e.salary_rank <= 3
+
+```
+
+
+
+补充
+
+* ROW_NUMBER()、DENSE_RANK() 和 RANK() 的区别详解
+
+这三个都是SQL中的窗口函数，用于给数据行分配排名，但在处理相同值(并列情况)时有重要区别。
+ 核心区别对比表
+
+| 函数             | 相同值处理                         | 排名序列                   | 示例输入值    | 示例输出排名 |
+| :--------------- | :--------------------------------- | :------------------------- | :------------ | :----------- |
+| **ROW_NUMBER()** | 相同值也分配不同排名               | 连续无间隔 (1,2,3,4)       | 100,100,90,80 | 1,2,3,4      |
+| **DENSE_RANK()** | 相同值分配相同排名，不跳过后续数字 | 连续但可能有重复 (1,1,2,3) | 100,100,90,80 | 1,1,2,3      |
+| **RANK()**       | 相同值分配相同排名，跳过后续数字   | 不连续可能有间隔 (1,1,3,4) | 100,100,90,80 | 1,1,3,4      |
 
 # 高级字符串函数 
 
