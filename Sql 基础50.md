@@ -167,11 +167,82 @@ LIMIT 1;
 
 
 
+## [585. 2016年的投资](https://leetcode.cn/problems/investments-in-2016/?envType=study-plan-v2&envId=sql-free-50)
+
+题目描述
+
+​	一个表中记录了2015，2016年的投保信息，找出2016年的投保总额，符合条件如下
+
+1. 2015年投保金额至少与其他一人一样。
+2. 他们的城市不能相同，（经纬度）
 
 
 
+思路
+
+*  题目要求，2015年的投保金额至少与1人一样，也就是根据2015年投保金额进行分组，组内个数等于1的就筛掉。
+* 其次考虑过滤掉城市相同的数据，求和
+
+实践中，上述要份为多部查询
+
+优化思路
+
+* 使用局部分组，这样分组的时候能保留未分组的数据
+* 过滤取出位置分组数据大于1的数据
 
 
+
+分布实现以下
+
+第一步，局部分组，根据2015的投保金额分组,并且计算组的大小
+
+```sql
+select *,
+count(*) over (partition by tiv_2015) as cnt
+from Insurance
+```
+
+完成了分组计算每组数据大小的计算，还保留了未使用分组字段的数据
+
+![image-20250328103310047](images/Sql 基础50.assets/image-20250328103310047.png)
+
+第二步，计算相同位置的数据，根据位置进行分组，同时使用局部分组，保留未分组的字段
+
+```sql
+select *,
+count(*) over (partition by lat,lon) as location_count
+from Insurance
+```
+
+![image-20250328103440900](images/Sql 基础50.assets/image-20250328103440900.png)
+
+上述两步，逻辑上是两步，但是可以同时做，所以优化。 （当然也可以量表连接获得 div_2015_count 和 location_count 的元素）
+
+```sql
+select *,
+count(*) over (partition by tiv_2015) as tiv_2015_count,
+count(*) over (partition by lat,lon) as location_count
+from Insurance
+```
+
+可以看出，使用分组排序，原表的数据是没变的，只是在其后添加了一个我们指定的字段，
+
+![image-20250328104021917](images/Sql 基础50.assets/image-20250328104021917.png)
+
+我们现在是需要过滤出tiv_2015_count >1 并且位置location_count = 1 的数据，注意保留2位小数
+
+优雅
+
+```sql
+select round(sum(t.tiv_2016),2)as tiv_2016
+from(
+    select *,
+    count(*) over (partition by tiv_2015) as cnt,
+    count(*) over (partition by lat,lon) as location_count
+from Insurance
+) as t
+where t.cnt >1 and t.location_count = 1
+```
 
 
 
