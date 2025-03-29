@@ -80,3 +80,42 @@ class Solution {
 }
 ```
 
+
+
+## [1431. 拥有最多糖果的孩子 - 力扣（LeetCode）](https://leetcode.cn/problems/kids-with-the-greatest-number-of-candies/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	一群孩子每个有都拥有n个糖果，现在你有m个糖果，你选择将糖果给某个孩子，判断该孩子是不是拥有最多的糖果数
+
+
+
+思路
+
+* 先找出最多拥有的糖果数
+* 遍历如果将自己的糖果全部给该孩子，是否小于最多的糖果数。
+
+```java
+class Solution {
+    public List<Boolean> kidsWithCandies(int[] candies, int extraCandies) {
+        int temp = 0;
+        for(int i = 0; i < candies.length; i ++){
+            if(candies[i] >= temp){
+                temp = candies[i];
+            }
+        }
+
+        List res = new ArrayList<Boolean>(candies.length);
+         for(int i = 0; i < candies.length; i ++){
+            if(candies[i] + extraCandies >= temp){
+                res.add(true);
+            }else{
+                res.add(false);
+            }
+        }
+
+        return res;
+    }
+}
+```
+
