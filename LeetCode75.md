@@ -119,3 +119,153 @@ class Solution {
 }
 ```
 
+
+
+## [605. 种花问题 - 力扣（LeetCode）](https://leetcode.cn/problems/can-place-flowers/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	 一个数组，已经存在一部分元素（不能相邻存在元素），要求插入n个元素，但是不能相邻，判断该n个元素是否能插入。
+
+
+
+思路
+
+* 根据数组大小判断最多可以存多少元素
+  * 比如说偶数组长度n，最多只能存 n/2.
+  * 奇数，可以存n/2 或者 n/ 2 + 1.(根据第一个元素)------有问题不能这莫分析
+  * ![image-20250329105149313](images/LeetCode75.assets/image-20250329105149313.png)
+
+```java
+class Solution {
+    public boolean canPlaceFlowers(int[] flowerbed, int n) {
+        int cnt = 0; // 计数
+        for(int i = 0; i< flowerbed.length;i ++){
+            if(flowerbed[i] == 1)
+            {
+                cnt ++;
+            }
+        }
+        // 最多可以存
+        //偶数
+        int max= 0;
+        if(flowerbed.length  % 2 == 0){
+            max = flowerbed.length / 2;
+        }
+        // 奇数
+        else{
+            if(flowerbed[0] == 1){
+                max = flowerbed.length/ 2 +1;
+            }
+            else{
+                max = flowerbed.length / 2;
+            }
+        }
+        if(cnt + n > max){
+            return false;
+        }
+        return true;
+    }
+}
+```
+
+错误
+
+![image-20250329110225554](images/LeetCode75.assets/image-20250329110225554.png)
+
+分析：思路有问题，我上述的设想奇数长度的大小，最多可以判断只有在开头种植了才能+1,忽略了结尾，比如上述。
+
+经过实验，对于过一个数组，间隔插入的最大值： 偶数长度 n/2, 奇数长度 (n+1)/2.
+
+但是对于已经存在数据的数组，就不能按上述计算，因为，插入的位置同时可以在偶数位置并且在奇数位置上。
+
+
+
+优化思路
+
+* 查找数组的连续0
+* 连续0在中间 最多可以插入 (n -1）/ 2 
+* 连续0 在两边， 最多可以插入 n / 2 
+
+如下图
+
+连续0在数组的中间的情况：
+
+![image-20250329112507403](images/LeetCode75.assets/image-20250329112507403.png)
+
+连续0在数组两边的情况：
+
+![image-20250329112729053](images/LeetCode75.assets/image-20250329112729053.png)
+
+
+
+优化思路
+
+* 贪心，能种就种
+
+
+
+```java
+class Solution {
+    public boolean canPlaceFlowers(int[] flowerbed, int n) {
+        int count = 0;
+        int i = 0;
+        while (i < flowerbed.length) {
+            if (flowerbed[i] == 0) {
+                boolean canPlace = (i == 0 || flowerbed[i - 1] == 0) &&  // 左边没有花或是数组开头
+                  (i == flowerbed.length - 1 || flowerbed[i + 1] == 0); // 右边没有花或是数组结尾
+               
+                if (canPlace) {
+                    flowerbed[i] = 1; // 种花
+                    count++;
+                    if (count >= n) {
+                        return true;
+                    }
+                    i += 2; // 跳过下一个位置，因为不能相邻
+                       // 检查是否能种花，左右都没中种花就可以种花，考虑边界情况，对于边界开头，只需要确保其后没有种花，对于结尾的边界，只需要前面没有种花
+
+                //开头边界
+                boolean first = (i==0) && (flowerbed[i+1] == 0);
+
+                //结尾边界
+                boolean end =(i == flowerbed.length -1) && (flowerbed[i-1] == 0);
+
+                // 中间
+                boolean center = (flowerbed[i-1] ==0 && flowerbed[i + 1] == 0);         } else {
+                    i++;
+                }
+            } else {
+                i += 2; // 已经有花，跳过下一个位置
+            }
+        }
+        return count >= n;
+    }
+}
+```
+
+边界问题处理了好久，看一下我最初的处理边界
+
+```java
+                // 检查是否能种花，左右都没中种花就可以种花，考虑边界情况，对于边界开头，只需要确保其后没有种花，对于结尾的边界，只需要前面没有种花
+
+ //开头边界
+                // boolean first = (i==0) && (flowerbed[i+1] == 0);
+                if(i == 0){
+                     if(flowerbed[i+1] == 0){
+                        first = true;
+                     } 
+                }
+
+                //结尾边界
+                // boolean end =(i == flowerbed.length -1) && (flowerbed[i-2] == 0);
+                else if(i == flowerbed.length -1){
+                    if(flowerbed[i-1] == 0){
+                        end = true;
+                    }
+                }else{
+                     // 中间
+                 center = (flowerbed[i-1] ==0 && flowerbed[i + 1] == 0);
+                }
+```
+
+还是下标溢出，原因是，假如数组长度就1，在判断开头的时候就i+1，下标溢出
