@@ -326,3 +326,113 @@ class Solution {
 }
 ```
 
+
+
+## [151. 反转字符串中的单词 - 力扣（LeetCode）](https://leetcode.cn/problems/reverse-words-in-a-string/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	反转单词 一个字符串，包含多个单词，反转单词的顺序。
+
+
+
+题目思路
+
+* 识别单词，存入list,倒叙拼接。
+* 主要是处理空格，我们可以使用split()根据空格进行分割，但是假如多个空格分割，值是有空格的？那我存的时候判断一下。
+
+
+
+实现有误
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        String[] split =s.split(" ");
+        StringBuilder result = new StringBuilder();
+        for(int i = split.length - 1 ;i >=0 ;i --){
+            if(split[i] != " "){
+                // 最后一个不加空格
+                if(i == 0){
+                     result.append(split[i]);
+                }
+                // 其他的后边要加一个空格
+                else{
+                    result.append(split[i] + " ");
+                }
+            }
+        }
+        return result.toString();
+    }
+}
+```
+
+原因如下： 在处理最后一个单词的时候，判断要不要加空格，是根据分割后的下标来判断的，这种逻辑是错误的
+
+tips:比较字符串 不要直接使用 == !=  而是使用equals。
+
+
+
+![image-20250330222307734](images/LeetCode75.assets/image-20250330222307734.png)
+
+问题？什么时候应该不加空格，最后一个有效单词，怎么判断？下标是判断不了。换种思路，在添加元素的前面添加空格
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        String[] split =s.split(" ");
+        StringBuilder result = new StringBuilder();
+        boolean isfirst = true;
+        for(int i = split.length - 1 ;i >=0 ;i --){
+            if(!split[i].isEmpty()){
+                
+                // 不是第一个元素，在前面就加空格
+                if(!isfirst){
+                    result.append(" ");
+                }
+                result.append(split[i]);
+                isfirst =false;
+            }
+        }
+        return result.toString();
+    }
+}
+```
+
+更优雅的做法，使用trim()去除首尾空格，同时分割的时候根据一个或者多个空格分割
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        // 去除首尾空格
+        s = s.trim();
+        // 按一个或多个空格分割
+        String[] words = s.split("\\s+");
+        StringBuilder sb = new StringBuilder();
+        
+        // 从后向前添加单词
+        for (int i = words.length - 1; i >= 0; i--) {
+            sb.append(words[i]);
+            if (i > 0) {
+                sb.append(" ");
+            }
+        }
+        
+        return sb.toString();
+    }
+}
+```
+
+更简洁的做法： 直接reverse
+
+```java
+class Solution {
+    public String reverseWords(String s) {
+        // 去除首尾空格，并按一个或多个空格分割
+        String[] words = s.trim().split("\\s+");
+        Collections.reverse(Arrays.asList(words));
+        return String.join(" ", words);
+    }
+}
+```
+
