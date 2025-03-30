@@ -269,3 +269,60 @@ class Solution {
 ```
 
 还是下标溢出，原因是，假如数组长度就1，在判断开头的时候就i+1，下标溢出
+
+
+
+## [345. 反转字符串中的元音字母 - 力扣（LeetCode）](https://leetcode.cn/problems/reverse-vowels-of-a-string/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+ 一个字符串，将其中的元音字母，反转（交换位置）输出结果字符串。
+
+
+
+思路
+
+* 双指针，找到元音字母相互交换位置。
+
+```java
+class Solution {
+    public String reverseVowels(String s) {
+
+        // 元音数组
+        Set<Character> vowels = new HashSet<>(
+            Arrays.asList('a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U')
+        );
+
+        // sting 不可变---》转成数组
+        char [] check = s.toCharArray();
+
+        int l = 0, r = check.size - 1;
+      
+        while(l < r){ 
+            // 从左向右找元音
+            while(l < r && !vowels.contains(check[l])){
+                l++;
+            }
+             // 从左向右找元音
+            while(l < r && !vowels.contains(check[r])){
+                r --;
+            }
+
+            // 交换元素
+
+            if( l < r ){
+                char t = check[l];
+                check[l] = check[r];
+                check[r] = t;
+                l++;
+                r--;
+            }
+
+
+        }
+        return new String(check);
+    
+    }
+}
+```
+
