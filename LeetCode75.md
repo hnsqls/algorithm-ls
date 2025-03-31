@@ -436,3 +436,76 @@ class Solution {
 }
 ```
 
+## [238. 除自身以外数组的乘积 - 力扣（LeetCode）](https://leetcode.cn/problems/product-of-array-except-self/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	一个整型数组， 获得出自己之外的数组相乘的值数组，数组中的每个值相乘（但是不能乘自己）
+
+
+
+思路
+
+* 全部相乘除以自己， 注意nums[i] =0 要注意 不要除。---实验发现这种思路错误因为有0的存在导致总和是0，所以不能这样算。
+
+优化思路
+
+* 前缀积 + 后缀积
+*  前缀鸡[i] = 前缀鸡[i-1] * 数组[i-1]
+* 后缀鸡[i] = 后缀鸡[i+1] * 数组[i+1]
+
+
+
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        // 前缀数组
+        int[] prefix = new int[nums.length];
+
+        //前缀乘积
+        prefix[0] = 1; // 第一个元素的前缀乘积是1
+        for(int i = 1 ; i < nums.length; i ++){
+            prefix[i] = prefix[i-1] * nums[i-1]; // 前缀鸡[i] = 前缀鸡[i-1] * 数组[i-1]
+        }
+        // 后缀鸡
+        int[] suffix = new int[nums.length];
+        suffix[nums.length -1] = 1;
+        for(int i = nums.length -2 ; i >=0 ; i --){
+              suffix[i] = suffix[i+1] * nums[i+1]; // 后缀鸡[i] = 后缀鸡[i+1] * 数组[i+1]
+        }
+
+        // 结果
+        for(int i = 0; i < nums.length ; i ++){
+            nums[i] = prefix[i] * suffix[i];
+        }
+        return nums;
+    }
+}
+```
+
+内存优化：上述new 了两个数组，可以就弄一个前缀数组，后缀数组不需要，直接使用一个变量存一下，直接计算结果
+
+```java
+class Solution {
+    public int[] productExceptSelf(int[] nums) {
+        int n = nums.length;
+        int[] result = new int[n];
+        
+        // 计算前缀乘积并直接存入结果数组
+        result[0] = 1;
+        for (int i = 1; i < n; i++) {
+            result[i] = result[i-1] * nums[i-1];
+        }
+        
+        // 使用一个变量来跟踪后缀乘积，避免使用额外数组
+        int suffix = 1;
+        for (int i = n-1; i >= 0; i--) {
+            result[i] *= suffix;
+            suffix *= nums[i];
+        }
+        
+        return result;
+    }
+}
+```
+
