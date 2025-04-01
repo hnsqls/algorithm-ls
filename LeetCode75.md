@@ -509,3 +509,45 @@ class Solution {
 }
 ```
 
+
+
+## [334. 递增的三元子序列 - 力扣（LeetCode）](https://leetcode.cn/problems/increasing-triplet-subsequence/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述 
+
+​	 一个数组，判断是否存在至少3个元素递增趋势（存在 i ,j,k 满足 nums[i] <  nums[j]<  nums[k]）。
+
+
+
+思路
+
+* 三循环---超时
+* 动态规划-超时
+* 贪心可以
+  * 每一步选择中都采取当前状态下最优（即最有利）的选择，从而希望导致结果是全局最优的算法
+  * 定义 first ,second,遍历，first 存最小的，second 存第二小的，如果还有比这俩更大的就是有解。
+  * 为了找到这样的三元组，我们可以维护两个变量 `first` 和 `second`，分别表示当前找到的最小和次小的数。通过遍历数组，我们不断更新这两个变量，并在找到一个数大于 `second` 时确认存在递增的三元组。
+
+
+
+```java
+class Solution {
+    public boolean increasingTriplet(int[] nums) {
+        int first = Integer.MAX_VALUE;
+        int second = Integer.MAX_VALUE;
+
+        for(int num : nums){
+            if(num <= first) first = num;
+            else if(num <= second) second = num;
+            else{
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+
+
+
+​	
