@@ -1,5 +1,7 @@
 # LeetCode 75
 
+我的更多题解：[hnsqls/algorithm-ls: 数据结构，算法](https://github.com/hnsqls/algorithm-ls)
+
 ## [1768. 交替合并字符串 - 力扣（LeetCode）](https://leetcode.cn/problems/merge-strings-alternately/description/?envType=study-plan-v2&envId=leetcode-75)
 
 题目描述
@@ -550,4 +552,131 @@ class Solution {
 
 
 
-​	
+## [443. 压缩字符串 - 力扣（LeetCode）](https://leetcode.cn/problems/string-compression/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	给定一个字符数组，对于连续相同的字符进行压缩，比如 char [] = a,b,b,c,c,c  压缩成a,b，2,c，3。 计算压缩后的长度。
+
+额外的要求，不能在新建数组，在原数组修改。
+
+思路
+
+* 遍历
+* 遍历原数组，同时统计相同的个数，记录字符以及相同长度
+
+
+
+优化思路
+
+* 双指针
+* 从左到右，一个读指针负责遍历原数组统计相同的字符个数，
+* 一个写指针，负责在当前位置写现在统计的字符
+* 后续处理，如果当前读的相同大于1就写入数字
+
+```java
+public class Solution {
+    public int compress(char[] chars) {
+
+        int read = 0;  // 读取指针，用于遍历原数组
+        int write = 0; // 写入指针，用于记录压缩后的位置
+        int n = chars.length;
+        while(read < n){
+            char temp = chars[read]; // 当前处理的字符
+
+            int count = 0; // 当前字符的连续出现次数
+
+            // 统计连续相同字符的数量
+            while(read < n && chars[read] == temp){
+                read ++;
+                count ++;
+            }
+            //跳出上述循环，说明，出现了不相同的字符
+            //写字符
+            chars[write++] = temp;
+
+            // 写统计的相同字符个数
+            if(count > 1){
+                //  将数字转换为字符数组并逐个写入
+                for(char c : String.valueOf(count).toCharArray()){
+                    chars[write++] = c;
+                }
+            }
+        } 
+        //统计长度
+        return write;
+
+    }
+}
+
+```
+
+我的更多题解：[hnsqls/algorithm-ls: 数据结构，算法](https://github.com/hnsqls/algorithm-ls)
+
+## [283. 移动零 - 力扣（LeetCode）](https://leetcode.cn/problems/move-zeroes/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	给定一个数组，将0元素移动到数组末尾，其他元素保持相对顺序。要求不能引入额外的空间。
+
+思路
+
+* 要求不能使用额外的空间，即对原数组进行修改
+* 双指针，一个nonZero指针用于指向非0元素的存储下标， 一个i指针遍历数组找出非0元素。找到非0元素存就行了。
+* 之后对剩余元素补0.
+
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int nonZero = 0;
+        
+        // 将所有非零元素前移
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) {
+                nums[nonZero++] = nums[i];
+            }
+        }
+        
+        // 将剩余位置填充为零
+        for (int i = nonZero; i < nums.length; i++) {
+            nums[i] = 0;
+        }
+    }
+}
+```
+
+
+
+优化写法
+
+* 使用双指针 + 交换
+* 一个nonZero 指针 指向非0元素存储的下标。
+* 一个i指针，从前向后遍历找出非0元素
+* 两个指针值交换，交换后给当前元素赋值为0，因为当前的值已经移动到前面了，该位置就是空的也就是0
+
+```java
+class Solution {
+    public void moveZeroes(int[] nums) {
+        int nonZero = 0; // 记录下一个非零元素应该放置的位置
+        
+        for (int i = 0; i < nums.length; i++) {
+            if (nums[i] != 0) {
+                // 交换当前元素和nonZero位置的元素
+                int temp = nums[i];
+                nums[i] = 0;       // 将当前位置设为0
+                nums[nonZero++] = temp; // 将非零元素放到前面
+            }
+        }
+    }
+}
+```
+
+我的更多题解：[hnsqls/algorithm-ls: 数据结构，算法](https://github.com/hnsqls/algorithm-ls)
+
+
+
+
+
+
+
+
