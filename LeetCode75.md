@@ -675,8 +675,38 @@ class Solution {
 
 
 
+## [392. 判断子序列 - 力扣（LeetCode）](https://leetcode.cn/problems/is-subsequence/description/?envType=study-plan-v2&envId=leetcode-75)
 
+题目描述
 
+​	 两个字符串，s,t。判断s是否是t的子序列。
 
+**子序列**：字符串的一个子序列是原始字符串删除一些（也可以不删除）字符而不改变剩余字符相对位置形成的新字符串。（例如，`"ace"`是`"abcde"`的一个子序列，而`"aec"`不是）。
 
+思路
 
+* 双指针
+* slow 指针遍历要判断的s字符，
+* fast 指针遍历t字符。fast++
+* 每当两个指针指向的值相等时：slow++。
+* 当slow= s.length()说明，字串遍历完毕，也就是存在字串
+
+```java
+class Solution {
+    public boolean isSubsequence(String s, String t) {
+        int slow = 0,fast = 0;
+        while(fast < t.length() && slow < s.length()){
+            if(s.charAt(slow) == t.charAt(fast)){
+                slow ++;
+            }
+            fast ++;
+        }
+        
+        return slow == s.length();  
+    }
+}
+```
+
+tips: 注意边界，s或者t 都可能为空       `while(fast < t.length() && slow < s.length())`
+
+我的更多题解：[hnsqls/algorithm-ls: 数据结构，算法](https://github.com/hnsqls/algorithm-ls)
