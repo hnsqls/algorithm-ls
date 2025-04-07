@@ -710,3 +710,58 @@ class Solution {
 tips: 注意边界，s或者t 都可能为空       `while(fast < t.length() && slow < s.length())`
 
 我的更多题解：[hnsqls/algorithm-ls: 数据结构，算法](https://github.com/hnsqls/algorithm-ls)
+
+
+
+## [11. 盛最多水的容器 - 力扣（LeetCode）](https://leetcode.cn/problems/container-with-most-water/description/?envType=study-plan-v2&envId=leetcode-75)
+
+题目描述
+
+​	给定一个数组存储的是高度，找出该数组能存储的最大的容量
+
+如图
+
+![image-20250407092417575](images/LeetCode75.assets/image-20250407092417575.png)
+
+
+
+思路
+
+* 贪心？双指针？
+
+* 不清楚，就先模拟，先从最简单的开始，比如说上图的前四个数值的存储容量
+  * l指针指向开头，r指针指向结尾，计算两个指针存储的容量`(r-l)*min(height[l],height[r])`  然后移动短的指针（因为容量是由短指针确定的，假如移动长指针，容量只会减少（长度减少，高度不变））计算移动后的容量和之前的容量比较，替换。
+
+思路清晰了
+
+* 双指针
+* l指针指向数组的开头，r指针指向数组的结尾。
+* 计算两个指针指向的值可以存储的容量`S = (r-l)*min(height[l],height[r]`
+* 移动短的指针，计算容量比较，替换容量
+* 双指针重合，结束
+
+```java
+class Solution {
+    public int maxArea(int[] height) {
+        int n = height.length;
+        // l指针指向数组的开头，r指针指向数组的结尾。
+        int l = 0 , r = n-1;
+        int s = 0;
+        while(l < r){
+            // 计算两个指针指向的值可以存储的容量`S = (l-r)*min(l,r)`
+            s = Math.max(s, (r - l) * Math.min(height[l],height[r]));
+            if(height[l] < height[r]){
+                l++;
+            }else{
+                r--;
+            }
+        }
+        return s;
+    }
+}
+```
+
+
+
+我的更多题解：[hnsqls/algorithm-ls: 数据结构，算法](https://github.com/hnsqls/algorithm-ls)
+
